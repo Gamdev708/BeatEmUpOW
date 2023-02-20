@@ -1,0 +1,26 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{105D94A9-4EBC-3CC6-4767-65A8993A5A55}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "BeatEmUpOW",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CustomStateMachine",
+				"AIModule"
+			]
+		}
+	],
+	"TargetPlatforms": [
+		"Linux",
+		"Mac",
+		"Windows",
+		"WindowsNoEditor",
+		"Android",
+		"IOS"
+	]
+}
