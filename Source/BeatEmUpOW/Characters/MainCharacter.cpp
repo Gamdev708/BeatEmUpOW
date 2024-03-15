@@ -1,19 +1,22 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BeatEmUpOW/Characters/MainCharacter.h"
+
+#include "AttackStateMachine.h"
 #include "Components/BoxComponent.h"
+#include "Components/InputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "BeatEmUpOW/FGAtoms.h"
-#include <BeatEmUpOW/FGMove.h>
 #include "EnemyCharacter.h"
 #include "MainPlayerController.h"
+#include "../../../Plugins/ComboSystemPlugin/Source/ComboSystemPlugin/Public/AttackStateMachine.h"
 
 // Sets default values
 AMainCharacter::AMainCharacter()
@@ -37,6 +40,8 @@ AMainCharacter::AMainCharacter()
 	CameraBoom->bUsePawnControlRotation = true; //Rotate arm based on Controller
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Follow Camera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+
+	AttackStateMachine = CreateDefaultSubobject <UAttackStateMachine> ("Attack State Machine");
 	// Attach the camera to the end of the boom and let the boom adjust to match
 	//Controller Orientation
 	//FollowCamera->bUsePawnControlRotation = false;
@@ -55,9 +60,9 @@ AMainCharacter::AMainCharacter()
 	GetCharacterMovement()->JumpZVelocity = 650.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
-	LightAttackSpeed = 2.f;
+	/*LightAttackSpeed = 2.f;
 	MediumAttackSpeed = 2.5f;
-	HeavyAttackSpeed = 2.8f;
+	HeavyAttackSpeed = 2.8f;*/
 
 	LightComboStatus = ELightCombo::ELC_None;
 	MediumComboStatus = EMediumCombo::EMC_None;
@@ -90,6 +95,15 @@ AMainCharacter::AMainCharacter()
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(BeatEmUpMappingContext, 0);
+		}
+	}
+
 	LeftHandCombatCollision->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::CombatOverlapBegin);
 	LeftHandCombatCollision->OnComponentEndOverlap.AddDynamic(this, &AMainCharacter::CombatOverlapEnd);
 
@@ -161,138 +175,6 @@ void AMainCharacter::Tick(float DeltaTime)
 		lookAtRotation.Pitch -= TargetingHeightOffset;
 		GetController()->SetControlRotation(lookAtRotation);
 	}
-//	// ============================================ THIS IS THE STATE MACHINE CODE USED BEATM SYS=====================
-//	//Process Input
-//
-//	//Add one atom for stick information
-//	const float DirectionalThreshold = 0.5f;
-//	UFGInputDirectionalAtom* InputDirection = nullptr;
-//	if (DirectionalInput.X< -DirectionalThreshold)
-//	{
-///*		if (DirectionalInput.Y<-DirectionalThreshold)
-//		{
-//			InputDirection = DirectionalBackForwardAtom;
-//		}
-//		else*/ if (DirectionalInput.Y < DirectionalThreshold)
-//		{
-//			InputDirection = DirectionalBackwardAtom;
-//		}
-//		//else
-//		//{
-//		//	InputDirection = DirectionalForwardAtom;
-//		//}
-//	}
-//	else if(DirectionalInput.X<DirectionalThreshold)
-//	{
-///*		if (DirectionalInput.Y < -DirectionalThreshold)
-//		{
-//			InputDirection = DirectionalBackwardAtom;
-//		}
-//		else*/ if (DirectionalInput.Y < DirectionalThreshold)
-//		{
-//			InputDirection = DirectionalNeutralAtom;
-//		}
-//		/*else
-//		{
-//			InputDirection = DirectionalForwardAtom;
-//		}*/
-//	}
-//	else
-//	{
-//		/*if (DirectionInput.Y < -DirectionThreshold)
-//		{
-//			InputDirection = DirectionDownForwardAtom;
-//		}
-//		else*/ if (DirectionalInput.Y < DirectionalThreshold)
-//		{
-//			InputDirection = DirectionalForwardAtom;
-//		}
-//		/*else
-//		{
-//			InputDirection = DirectionUpForwardAtom;
-//		}*/
-//	}
-//	InputStream.Add(InputDirection);
-////	
-////
-////	//Add one atom for eachbutton's State
-//	for (int32 i = 0; i < (int32)EFGInputButtons::Count; ++i)
-//	{
-//
-//		if (ButtonDown &(1<<i))
-//		{
-//			
-//			if (ButtonDown_Old &(1<<i))
-//			{
-//				//UE_LOG(LogTemp, Warning, TEXT("Shifting to Held Down = %d"), 1 << i);
-//				InputStream.Add(ButtonAtoms[(int32)EFGButtonState::HeldDown]);
-//				
-//			}
-//			else
-//			{
-//				//UE_LOG(LogTemp, Warning, TEXT("Shifting pressed = %d"), 1 << i);
-//				InputStream.Add(ButtonAtoms[(int32)EFGButtonState::JustPressed]);
-//				
-//			}
-//		}
-//		else
-//		{
-//			//UE_LOG(LogTemp, Warning, TEXT("Shifting UP= %d"), 1 << i);
-//			InputStream.Add(ButtonAtoms[(int32)EFGButtonState::Up]);
-//		}
-//	}
-//
-//	//Always add an input time stamp to match the input sequence.
-//	float CurrentTime = UKismetSystemLibrary::GetGameTimeInSeconds(this);
-//	InputTimeStamps.Add(CurrentTime);
-//
-//	//Cache old buttons so we can distinguish between held down and just pressed
-//	ButtonDown_Old = ButtonDown;
-//
-//	//Prune old inputs. This would be better suited to a ring buffer than an array, but it's not much data
-//	for (int32 i = 0; i < InputStream.Num(); i++)
-//	{
-//
-//		if ((InputTimeStamps[i]+InputExpriationTime)>=CurrentTime)
-//		{
-//			//Remove everything before this then exit the loop
-//			if (i > 0)
-//			{
-//				InputTimeStamps.RemoveAt(0, i, false);
-//				InputStream.RemoveAt(0, i * ((int32)EFGInputButtons::Count + 1), false);
-//			}
-//			break;
-//		}
-//	}
-//
-//	FFGMoveLinkToFollow MoveLinkToFollow = CurrentMove->TryLinks(this, InputStream);
-//	if (MoveLinkToFollow.SMR.CompeletionType==EStateMachineCompletionType::Accepted)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("Switching to state %s"), *MoveLinkToFollow.Link->Move->MoveName.ToString());
-//		if (MoveLinkToFollow.Link->bClearInput||MoveLinkToFollow.Link->Move->bClearInputOnEntry|| CurrentMove->bClearInputOnExit)
-//		{
-//			InputStream.Reset();
-//			InputTimeStamps.Reset();
-//		}
-//		else if (MoveLinkToFollow.SMR.DataIndex)
-//		{
-//			//Consume the input we used to get to this move
-//			check((MoveLinkToFollow.SMR.DataIndex % (1 + (int32)EFGInputButtons::Count)) == 0);
-//			InputTimeStamps.RemoveAt(0, MoveLinkToFollow.SMR.DataIndex/3, false);
-//			InputStream.RemoveAt(0, MoveLinkToFollow.SMR.DataIndex, false);
-//		}
-//
-//		//Set and start the new move
-//		CurrentMove = MoveLinkToFollow.Link->Move;
-//		TimeInCurrentMove = 0.f;
-//		DoMove(CurrentMove);
-//	}
-//	else
-//	{
-//		TimeInCurrentMove += DeltaTime; //Modulate by move animation length
-//	}
-//
-//	//============================================ THIS IS THE END OF STATE MACHINE CODE USED BEATM SYS==================== =
 }
 
 // Called to bind functionality to input
@@ -300,6 +182,12 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMainCharacter::Move);
+		EnhancedInputComponent->BindAction(LightAttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::LightAttack);
+		EnhancedInputComponent->BindAction(HeavyAttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::HeavyAttack);
+	}
 #pragma region Locomotion
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMainCharacter::MoveForward);
@@ -358,7 +246,7 @@ void AMainCharacter::LightAttack()
 
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		if (AnimInstance && LightComboMontage) {
+		/*if (AnimInstance && LightComboMontage) {
 			switch (LightComboStatus)
 			{
 			case ELightCombo::ELC_None:
@@ -390,7 +278,7 @@ void AMainCharacter::LightAttack()
 			default:
 				break;
 			}
-		}
+		}*/
 	}
 }
 void AMainCharacter::ResetTransformRotation() 
@@ -429,7 +317,7 @@ void AMainCharacter::MediumAttack()
 		UE_LOG(LogTemp, Warning, TEXT("Medium Attack:%d"), Medium);
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		if (AnimInstance && MediumComboMontage) {
+		/*if (AnimInstance && MediumComboMontage) {
 			switch (MediumComboStatus)
 			{
 			case EMediumCombo::EMC_None:
@@ -461,7 +349,7 @@ void AMainCharacter::MediumAttack()
 			default:
 				break;
 			}
-		}
+		}*/
 
 	}
 
@@ -486,7 +374,7 @@ void AMainCharacter::HeavyAttack()
 		UE_LOG(LogTemp, Warning, TEXT("Heavy Attack:%d"), Heavy);
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		if (AnimInstance && MediumComboMontage) {
+		/*if (AnimInstance && MediumComboMontage) {
 			switch (HeavyComboStatus)
 			{
 			case EHeavyCombo::EHC_None:
@@ -518,7 +406,7 @@ void AMainCharacter::HeavyAttack()
 			default:
 				break;
 			}
-		}
+		}*/
 
 	}
 
@@ -800,6 +688,10 @@ float AMainCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		Health -= DamageAmount;
 	}
 	return DamageAmount;
+}
+
+void AMainCharacter::Move(const FInputActionValue& InputActionValue)
+{
 }
 
 void AMainCharacter::Die()

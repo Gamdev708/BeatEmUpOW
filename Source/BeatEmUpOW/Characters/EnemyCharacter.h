@@ -6,6 +6,11 @@
 #include "GameFramework/Character.h"
 #include "EnemyCharacter.generated.h"
 
+class USphereComponent;
+class AAIController;
+class UParticleSystem;
+class USoundCue;
+class AMainCharacter;
 
 UENUM(Blueprintable)
 enum class EEnemyType :uint8
