@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{105D94A9-4EBC-3CC6-4767-65A8993A5A55}",
+	"EngineAssociation": "4.27",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -10,7 +10,7 @@
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
 				"Engine",
-				"CustomStateMachine",
+				"ComboSystemPlugin",
 				"AIModule"
 			]
 		}

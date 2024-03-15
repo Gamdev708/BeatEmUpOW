@@ -3,14 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnhancedInputSubsystemInterface.h"
 #include "GameFramework/Character.h"
-#include <SM_State.h>
 #include "MainCharacter.generated.h"
 
 
-class UFGInputDirectionalAtom;
-class UFGButtonInputAtom;
-class UFGMove;
+class UBoxComponent;
+class AEnemyCharacter;
+class UParticleSystem;
+class USoundCue;
+class UAttackStateMachine;
 
 UENUM(BlueprintType)
 enum class ELightCombo :uint8
@@ -45,16 +47,33 @@ class BEATEMUPOW_API AMainCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+
+protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* LeftHandCombatCollision;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* RightHandCombatCollision;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* LeftLegCombatCollision;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* RightLegCombatCollision;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* TargetCollision;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")TSubclassOf<UDamageType> DamageTypeClass;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement") float RunningSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat") UAttackStateMachine* AttackStateMachine;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input") UInputMappingContext* BeatEmUpMappingContext;
+	const UInputAction* MoveAction;
+	const UInputAction* LightAttackAction;
+	const UInputAction* HeavyAttackAction;
+
 public:
 	// Sets default values for this character's properties
 	AMainCharacter();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Controller")class AMainPlayerController* MainPlayerController;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement") float RunningSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Combat") float LightAttackSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Combat") float MediumAttackSpeed;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Combat") float HeavyAttackSpeed;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Combat") float LightAttackSpeed;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Combat") float MediumAttackSpeed;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement|Combat") float HeavyAttackSpeed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums") ELightCombo LightComboStatus;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums") EMediumCombo MediumComboStatus;
@@ -63,19 +82,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat") float Damage;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")AController* WeaponInstigator;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") class UBoxComponent* LeftHandCombatCollision;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* RightHandCombatCollision;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* LeftLegCombatCollision;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* RightLegCombatCollision;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* TargetCollision;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")TSubclassOf<UDamageType> DamageTypeClass;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")bool bHasCombatTarget;
 	FORCEINLINE void SetHasCombatTarget(bool HasTarget) { bHasCombatTarget = HasTarget; }
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat") class AEnemyCharacter* CombatTarget;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat") class AEnemyCharacter* LockedOnTarget;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat") AEnemyCharacter* CombatTarget;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat") AEnemyCharacter* LockedOnTarget;
 	FORCEINLINE void SetCombatTarget(AEnemyCharacter* Target) { CombatTarget = Target; }
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")class UParticleSystem* HitParticle;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")class USoundCue* HitSound;
+
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") TSubclassOf<AEnemyCharacter> EnemyFilter;
@@ -93,7 +106,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Stats") float MaxHealth;
 
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TakeDown Combat") UBoxComponent HeavyAttackSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|SFX") UParticleSystem* HitParticle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|VFX") USoundCue* HitSound;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -106,6 +122,7 @@ public:
 
 	//FORCEINLINE float GetTimeInMove() const { return TimeInCurrentMove; }
 
+	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -139,37 +156,10 @@ public:
 	UFUNCTION() void OnDetectedTargetsOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-protected:
 
-	//void LightATKBTNPressed();
-	//void LightATKBTNReleased();
-	//void HeavyATKBTNPressed();
-	//void HeavyATKBTNReleased();
-
-	//FVector2D DirectionalInput;
-	//uint32 ButtonDown;
-	//uint32 ButtonDown_Old;
-	//float TimeInCurrentMove;
-
-	//UPROPERTY(EditAnywhere) UFGMove* CurrentMove;
-
-	////Input atoms are removed when they pass this age threshold. All moves must be exceute in under this age
-	//UPROPERTY(EditAnywhere) float InputExpriationTime;
-
-	//UPROPERTY(EditAnywhere, Category = "Input Atoms") UFGInputDirectionalAtom* DirectionalBackForwardAtom;
-	//UPROPERTY(EditAnywhere, Category = "Input Atoms") UFGInputDirectionalAtom* DirectionalForwardBackAtom;
-	//UPROPERTY(EditAnywhere, Category = "Input Atoms") UFGInputDirectionalAtom* DirectionalBackwardAtom;
-	////UPROPERTY(EditAnywhere, Category = "Input Atoms") UFGInputDirectionalAtom* DirectionalRightAtom;
-	////UPROPERTY(EditAnywhere, Category = "Input Atoms") UFGInputDirectionalAtom* DirectionalLeftAtom;
-	//UPROPERTY(EditAnywhere, Category = "Input Atoms") UFGInputDirectionalAtom* DirectionalForwardAtom;
-	//UPROPERTY(EditAnywhere, Category = "Input Atoms") UFGInputDirectionalAtom* DirectionalNeutralAtom;
-
-	//////Order in this array is the same as EFGButtonState
-	//UPROPERTY(EditAnywhere, Category = "Input Atoms") TArray<UFGButtonInputAtom*> ButtonAtoms;
-	//UFUNCTION(BlueprintImplementableEvent) void DoMove(UFGMove* NewMove);
 
 private:
-
+	void Move(const FInputActionValue& InputActionValue);
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 	void LookUpRate(float AxisValue);
@@ -194,10 +184,7 @@ private:
 	bool bIsLockedOnTarget;
 	bool bIsDead;
 	float TargetingHeightOffset;
-
-	//~This array relates to InputStream.Input Stream must not be updated without this stream being updated
-	/*UPROPERTY(VisibleInstanceOnly) TArray<float>InputTimeStamps;
-	UPROPERTY(VisibleInstanceOnly) TArray<USM_InputAtom*> InputStream;*/
+	
 };	
 
 
