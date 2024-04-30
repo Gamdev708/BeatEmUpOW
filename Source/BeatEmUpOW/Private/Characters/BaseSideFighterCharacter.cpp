@@ -25,6 +25,8 @@ ABaseSideFighterCharacter::ABaseSideFighterCharacter()
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
+	bIsDefending = false;
+
 }
 
 // Called when the game starts or when spawned
@@ -59,11 +61,18 @@ void ABaseSideFighterCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 
 		//Jumping
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		//EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(DuckAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::DoCrouch);
+		EnhancedInputComponent->BindAction(DuckAction, ETriggerEvent::Completed, this, &ABaseSideFighterCharacter::DoUncrouch);
 
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::Move);
+
+		//Attacking
+		EnhancedInputComponent->BindAction(LightAttackPunchAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::PunchLight);
+		EnhancedInputComponent->BindAction(LightAttackKickAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::KickLight);
+
 	}
 
 }
@@ -88,5 +97,50 @@ void ABaseSideFighterCharacter::Move(const FInputActionValue& Value)
 		/*AddMovementInput(ForwardDirection, MovementVector.Y);*/
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
+}
+
+void ABaseSideFighterCharacter::Jump()
+{
+}
+
+void ABaseSideFighterCharacter::DoCrouch()
+{
+	this->Crouch(false);
+}
+void ABaseSideFighterCharacter::DoUncrouch()
+{
+	this->UnCrouch(false);
+}
+
+void ABaseSideFighterCharacter::PunchLight()
+{
+}
+
+void ABaseSideFighterCharacter::PunchMedium()
+{
+}
+
+void ABaseSideFighterCharacter::PunchHeavy()
+{
+}
+
+void ABaseSideFighterCharacter::PunchHeavyHold()
+{
+}
+
+void ABaseSideFighterCharacter::KickLight()
+{
+}
+
+void ABaseSideFighterCharacter::KickMedium()
+{
+}
+
+void ABaseSideFighterCharacter::KickHeavy()
+{
+}
+
+void ABaseSideFighterCharacter::KickHeavyHold()
+{
 }
 

@@ -19,6 +19,7 @@ class BEATEMUPOW_API ABaseSideFighterCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+protected:
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
@@ -41,7 +42,13 @@ class BEATEMUPOW_API ABaseSideFighterCharacter : public ACharacter
 	UInputAction* LightAttackKickAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-	class UAttackStateMachine* AttackStateMachineComponent;
+	UAttackStateMachine* AttackStateMachineComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* LeftHandCombatCollision;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* RightHandCombatCollision;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* LeftLegCombatCollision;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* RightLegCombatCollision;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* DefendCollision;
 
 public:
 	// Sets default values for this character's properties
@@ -61,6 +68,18 @@ public:
 private:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
+	void Jump();
+	void DoCrouch();
+	void DoUncrouch();
+	void PunchLight();
+	void PunchMedium();
+	void PunchHeavy();
+	void PunchHeavyHold();
+	void KickLight();
+	void KickMedium();
+	void KickHeavy();
+	void KickHeavyHold();
+	bool bIsDefending;
 
 public:
 	FORCEINLINE UAttackStateMachine* GetAttackStateMachineComponent() const { return AttackStateMachineComponent; }
