@@ -6,6 +6,8 @@
 #include <EnhancedInputComponent.h>
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/ActionComponent.h"
+#include "../../../Plugins/ComboSystemPlugin/Source/ComboSystemPlugin/Public/AttackStateMachine.h"
 
 // Sets default values
 ABaseSideFighterCharacter::ABaseSideFighterCharacter()
@@ -27,6 +29,10 @@ ABaseSideFighterCharacter::ABaseSideFighterCharacter()
 
 	bIsDefending = false;
 
+
+	AttackStateMachineComponent = CreateDefaultSubobject<UAttackStateMachine>("Attack StateMachine Component");
+	ActionComp = CreateDefaultSubobject<UActionComponent>("Action Component");
+		 
 }
 
 // Called when the game starts or when spawned
@@ -95,12 +101,15 @@ void ABaseSideFighterCharacter::Move(const FInputActionValue& Value)
 
 		// add movement 
 		/*AddMovementInput(ForwardDirection, MovementVector.Y);*/
+		GetCharacterMovement()->Velocity = FVector(50,0,0);
+
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
 
 void ABaseSideFighterCharacter::Jump()
 {
+
 }
 
 void ABaseSideFighterCharacter::DoCrouch()

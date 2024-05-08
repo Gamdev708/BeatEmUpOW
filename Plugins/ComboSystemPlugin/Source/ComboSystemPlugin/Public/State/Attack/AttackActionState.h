@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class COMBOSYSTEMPLUGIN_API UAttackActionState : public UAttackBaseState
 {
 	GENERATED_BODY()

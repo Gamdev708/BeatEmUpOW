@@ -13,6 +13,7 @@ class UBoxComponent;
 class UParticleSystem;
 class USoundCue;
 class UAttackStateMachine;
+class UActionComponent;
 
 UCLASS()
 class BEATEMUPOW_API ABaseSideFighterCharacter : public ACharacter
@@ -42,13 +43,17 @@ protected:
 	UInputAction* LightAttackKickAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-	UAttackStateMachine* AttackStateMachineComponent;
+	TObjectPtr<UAttackStateMachine> AttackStateMachineComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UActionComponent> ActionComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* LeftHandCombatCollision;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* RightHandCombatCollision;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* LeftLegCombatCollision;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* RightLegCombatCollision;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* DefendCollision;
+
 
 public:
 	// Sets default values for this character's properties

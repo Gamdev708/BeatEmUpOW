@@ -17,7 +17,7 @@ class COMBOSYSTEMPLUGIN_API UAttackStateMachine : public UStateMachine
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo StateMachine Attributes") TSubclassOf<UAttackIdleState> DefaultState;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Combo StateMachine Attributes") TSubclassOf<UAttackIdleState> DefaultState;
 	virtual void BeginPlay() override;
 
 private:
