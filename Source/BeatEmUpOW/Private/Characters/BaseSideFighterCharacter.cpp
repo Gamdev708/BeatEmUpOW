@@ -67,8 +67,9 @@ void ABaseSideFighterCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 
 		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::StartJump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ABaseSideFighterCharacter::StopJump);
+
 		EnhancedInputComponent->BindAction(DuckAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::DoCrouch);
 		EnhancedInputComponent->BindAction(DuckAction, ETriggerEvent::Completed, this, &ABaseSideFighterCharacter::DoUncrouch);
 
@@ -89,6 +90,8 @@ void ABaseSideFighterCharacter::Move(const FInputActionValue& Value)
 	FVector2D MovementVector = Value.Get<FVector2D>();
 	if (Controller != nullptr)
 	{
+		if (GetCharacterMovement()->IsCrouching()) { return; }
+
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0,0, Rotation.Yaw);
@@ -107,9 +110,14 @@ void ABaseSideFighterCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
-void ABaseSideFighterCharacter::Jump()
+void ABaseSideFighterCharacter::StartJump()
 {
+	this->Jump();
+}
 
+void ABaseSideFighterCharacter::StopJump()
+{
+	this->StopJumping();
 }
 
 void ABaseSideFighterCharacter::DoCrouch()

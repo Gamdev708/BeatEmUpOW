@@ -73,7 +73,8 @@ public:
 private:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
-	void Jump();
+	void StartJump();
+	void StopJump();
 	void DoCrouch();
 	void DoUncrouch();
 	void PunchLight();

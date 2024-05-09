@@ -24,12 +24,20 @@ void USideAnimInstance::UpdateAnimationProperties()
 	{
 		FVector Speed = Pawn->GetVelocity();
 		FVector LateralSpeed = FVector(Speed.X, Speed.Y, 0.f);
-		MovementSpeed = LateralSpeed.Size();
+		MovementSpeed = Speed.X;
+		if (Speed.X==0)
+		{
+			bShouldMove = false;
+		}
 
 		bIsInAir = Pawn->GetMovementComponent()->IsFalling();
 		if (Main == nullptr)
 		{
 			Main = Cast<ABaseSideFighterCharacter>(Pawn);
+
+			bIsCrouch = Main->GetCharacterMovement()->IsCrouching();
 		}
+
+
 	}
 }
