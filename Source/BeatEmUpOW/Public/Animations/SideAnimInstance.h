@@ -23,7 +23,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement") float AirSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement") bool bIsInAir;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement") bool bShouldMove;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement") bool bIsCrouch;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement") bool bIsCrouch;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement") class APawn* Pawn;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement") TObjectPtr<ABaseSideFighterCharacter> Main;
 

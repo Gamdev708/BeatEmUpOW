@@ -31,12 +31,12 @@ void USideAnimInstance::UpdateAnimationProperties()
 		}
 
 		bIsInAir = Pawn->GetMovementComponent()->IsFalling();
-		if (Main == nullptr)
+		bIsCrouch = Pawn->GetMovementComponent()->IsCrouching();
+		/*if (Main == nullptr)
 		{
 			Main = Cast<ABaseSideFighterCharacter>(Pawn);
-
 			bIsCrouch = Main->GetCharacterMovement()->IsCrouching();
-		}
+		}*/
 
 
 	}
