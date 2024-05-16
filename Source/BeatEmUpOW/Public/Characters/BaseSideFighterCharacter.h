@@ -40,7 +40,11 @@ protected:
 	UInputAction* LightAttackPunchAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* LightAttackKickAction;
+	UInputAction* MediumAttackAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* HeavyAttackAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* HeavyHoldAttackAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAttackStateMachine> AttackStateMachineComponent;
@@ -70,6 +74,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION() void CombatOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION() void CombatOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 private:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -77,15 +84,14 @@ private:
 	void StopJump();
 	void DoCrouch();
 	void DoUncrouch();
-	void PunchLight();
-	void PunchMedium();
-	void PunchHeavy();
-	void PunchHeavyHold();
-	void KickLight();
-	void KickMedium();
-	void KickHeavy();
-	void KickHeavyHold();
+	void AttackLight();
+	void AttackMedium();
+	void AttackHeavy();
+	void AttackHeavyHold();
 	bool bIsDefending;
+
+
+	void GenerateHitboxesToSockets();
 
 public:
 	FORCEINLINE UAttackStateMachine* GetAttackStateMachineComponent() const { return AttackStateMachineComponent; }

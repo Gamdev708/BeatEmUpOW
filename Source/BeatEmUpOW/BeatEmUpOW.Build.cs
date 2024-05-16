@@ -8,7 +8,7 @@ public class BeatEmUpOW : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","ComboSystemPlugin","GameplayTasks","AIModule", "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","ComboSystemPlugin","GameplayTasks","AIModule", "EnhancedInput", "GameplayTags" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

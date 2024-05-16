@@ -2,6 +2,8 @@
 
 
 #include "Characters/BaseSideFighterCharacter.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include <EnhancedInputComponent.h>
 #include "EnhancedInputSubsystems.h"
@@ -15,6 +17,7 @@ ABaseSideFighterCharacter::ABaseSideFighterCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	GenerateHitboxesToSockets();
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
@@ -49,6 +52,42 @@ void ABaseSideFighterCharacter::BeginPlay()
 		}
 	}
 	
+	LeftHandCombatCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseSideFighterCharacter::CombatOverlapBegin);
+	LeftHandCombatCollision->OnComponentEndOverlap.AddDynamic(this, &ABaseSideFighterCharacter::CombatOverlapEnd);
+
+	LeftHandCombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftHandCombatCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	LeftHandCombatCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	LeftHandCombatCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	RightHandCombatCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseSideFighterCharacter::CombatOverlapBegin);
+	RightHandCombatCollision->OnComponentEndOverlap.AddDynamic(this, &ABaseSideFighterCharacter::CombatOverlapEnd);
+
+	RightHandCombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightHandCombatCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	RightHandCombatCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightHandCombatCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	LeftLegCombatCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseSideFighterCharacter::CombatOverlapBegin);
+	LeftLegCombatCollision->OnComponentEndOverlap.AddDynamic(this, &ABaseSideFighterCharacter::CombatOverlapEnd);
+
+
+	LeftLegCombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftLegCombatCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	LeftLegCombatCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	LeftLegCombatCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	RightLegCombatCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseSideFighterCharacter::CombatOverlapBegin);
+	RightLegCombatCollision->OnComponentEndOverlap.AddDynamic(this, &ABaseSideFighterCharacter::CombatOverlapEnd);
+
+	RightLegCombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightLegCombatCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	RightLegCombatCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightLegCombatCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
 // Called every frame
@@ -77,11 +116,26 @@ void ABaseSideFighterCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::Move);
 
 		//Attacking
-		EnhancedInputComponent->BindAction(LightAttackPunchAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::PunchLight);
-		EnhancedInputComponent->BindAction(LightAttackKickAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::KickLight);
+		EnhancedInputComponent->BindAction(LightAttackPunchAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackLight);
+		EnhancedInputComponent->BindAction(MediumAttackAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackMedium);
+		EnhancedInputComponent->BindAction(HeavyAttackAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackHeavy);
+		EnhancedInputComponent->BindAction(HeavyHoldAttackAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackHeavyHold);
 
 	}
 
+}
+
+void ABaseSideFighterCharacter::CombatOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == this) { return; }
+	if (TObjectPtr<ABaseSideFighterCharacter> Fighter = Cast<ABaseSideFighterCharacter>(OtherActor))
+	{
+
+	}
+}
+
+void ABaseSideFighterCharacter::CombatOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
 }
 
 void ABaseSideFighterCharacter::Move(const FInputActionValue& Value)
@@ -129,35 +183,33 @@ void ABaseSideFighterCharacter::DoUncrouch()
 	this->UnCrouch(false);
 }
 
-void ABaseSideFighterCharacter::PunchLight()
+void ABaseSideFighterCharacter::AttackLight()
 {
 }
 
-void ABaseSideFighterCharacter::PunchMedium()
+void ABaseSideFighterCharacter::AttackMedium()
 {
 }
 
-void ABaseSideFighterCharacter::PunchHeavy()
+void ABaseSideFighterCharacter::AttackHeavy()
 {
 }
 
-void ABaseSideFighterCharacter::PunchHeavyHold()
+void ABaseSideFighterCharacter::AttackHeavyHold()
 {
 }
 
-void ABaseSideFighterCharacter::KickLight()
+void ABaseSideFighterCharacter::GenerateHitboxesToSockets()
 {
-}
+	LeftHandCombatCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Left Hand Combat Collision"));
+	RightHandCombatCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Right Hand Combat Collision"));
+	LeftLegCombatCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Left Leg Combat Collision"));
+	RightLegCombatCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Right Leg Combat Collision"));
 
-void ABaseSideFighterCharacter::KickMedium()
-{
-}
+	LeftHandCombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("LeftHandHitBoxSocket"));
+	RightHandCombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("RightHandHitBoxSocket"));
+	LeftLegCombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("LeftLegHitBoxSocket"));
+	RightLegCombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("RightLegHitBoxSocket"));
 
-void ABaseSideFighterCharacter::KickHeavy()
-{
-}
-
-void ABaseSideFighterCharacter::KickHeavyHold()
-{
 }
 
