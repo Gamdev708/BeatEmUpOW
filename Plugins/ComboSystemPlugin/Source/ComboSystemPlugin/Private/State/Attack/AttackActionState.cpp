@@ -28,7 +28,6 @@ void UAttackActionState::Update(float DeltaTime)
 	{
 		GetWorld()->GetTimerManager().SetTimer(ComboTimerHandle, this, &UAttackActionState::Reset, WaitDuration);
 	}
-
 	EInputButtons EnteredInput = static_cast<EInputButtons>(AttackStateMachine->GetInputButton());
 	EButtonState EnteredState = static_cast<EButtonState>(AttackStateMachine->GetInputState());
 
@@ -46,10 +45,12 @@ void UAttackActionState::Update(float DeltaTime)
 		return;
 	}
 
+	
 
 	UAttackActionState* NextAction = nullptr;
 	switch (EnteredInput)
 	{
+		
 	case EInputButtons::LightAttack:
 		switch (EnteredState)
 		{

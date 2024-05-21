@@ -46,11 +46,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* HeavyHoldAttackAction;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UAttackStateMachine> AttackStateMachineComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true")) TObjectPtr<UAttackStateMachine> AttackStateMachineComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UActionComponent> ActionComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components") TObjectPtr<UActionComponent> ActionComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* LeftHandCombatCollision;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat") UBoxComponent* RightHandCombatCollision;
@@ -76,6 +74,8 @@ public:
 
 	UFUNCTION() void CombatOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION() void CombatOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	UFUNCTION(BlueprintCallable) void ActivateCollision();
+	UFUNCTION(BlueprintCallable) void DeactivateCollision();
 
 private:
 	/** Called for movement input */
@@ -94,5 +94,6 @@ private:
 	void GenerateHitboxesToSockets();
 
 public:
-	FORCEINLINE UAttackStateMachine* GetAttackStateMachineComponent() const { return AttackStateMachineComponent; }
+	FORCEINLINE TObjectPtr<UAttackStateMachine> GetAttackStateMachineComponent() const { return AttackStateMachineComponent; }
+	FORCEINLINE TObjectPtr<UActionComponent> GetActionComponent() const { return ActionComp; }
 };

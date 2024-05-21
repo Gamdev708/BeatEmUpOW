@@ -3,6 +3,7 @@
 
 #include "Combat/Action.h"
 #include "Components/ActionComponent.h"
+#include "Engine/ActorChannel.h"
 #include "Net/UnrealNetwork.h"
 
 UActionComponent* UAction::GetOwningComponent() const
@@ -32,10 +33,10 @@ bool UAction::CanStart_Implementation(AActor* Instigator)
 
 	UActionComponent* Comp = GetOwningComponent();
 
-	/*if (Comp->ActiveGameplayTags.HasAny(BlockedTags))
+	if (Comp->ActiveGameplayTags.HasAny(BlockedTags))
 	{
 		return false;
-	}*/
+	}
 
 	return true;
 }
@@ -46,7 +47,7 @@ void UAction::StartAction_Implementation(AActor* Instigator)
 	//LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);
 
 	UActionComponent* Comp = GetOwningComponent();
-	//Comp->ActiveGameplayTags.AppendTags(GrantsTags);
+	Comp->ActiveGameplayTags.AppendTags(GrantsTags);
 
 	RepData.bIsRunning = true;
 	RepData.Instigator = Instigator;
@@ -67,7 +68,7 @@ void UAction::StopAction_Implementation(AActor* Instigator)
 	//ensureAlways(bIsRunning);
 
 	UActionComponent* Comp = GetOwningComponent();
-	//Comp->ActiveGameplayTags.RemoveTags(GrantsTags);
+	Comp->ActiveGameplayTags.RemoveTags(GrantsTags);
 
 	RepData.bIsRunning = false;
 	RepData.Instigator = Instigator;

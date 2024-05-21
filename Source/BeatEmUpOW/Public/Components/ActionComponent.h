@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayTagContainer.h"
 #include "ActionComponent.generated.h"
 
 class UAction;
@@ -17,38 +18,26 @@ class BEATEMUPOW_API UActionComponent : public UActorComponent
 
 public:	
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
-	//FGameplayTagContainer ActiveGameplayTags;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags") FGameplayTagContainer ActiveGameplayTags;
 
-	UFUNCTION(BlueprintCallable, Category = "Actions")
-	void AddAction(AActor* Instigator, TSubclassOf<UAction> ActionClass);
-
-	UFUNCTION(BlueprintCallable, Category = "Actions")
-	void RemoveAction(UAction* ActionToRemove);
+	UFUNCTION(BlueprintCallable, Category = "Actions") void AddAction(AActor* Instigator, TSubclassOf<UAction> ActionClass);
+	UFUNCTION(BlueprintCallable, Category = "Actions") void RemoveAction(UAction* ActionToRemove);
 
 	/* Returns first occurrence of action matching the class provided */
-	UFUNCTION(BlueprintCallable, Category = "Actions")
-	UAction* GetAction(TSubclassOf<UAction> ActionClass) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Actions")
-	bool StartActionByName(AActor* Instigator, FName ActionName);
-
-	UFUNCTION(BlueprintCallable, Category = "Actions")
-	bool StopActionByName(AActor* Instigator, FName ActionName);
-
+	UFUNCTION(BlueprintCallable, Category = "Actions") UAction* GetAction(TSubclassOf<UAction> ActionClass) const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Actions") bool StartActionByName(AActor* Instigator, FName ActionName);
+	UFUNCTION(BlueprintCallable, Category = "Actions") bool StopActionByName(AActor* Instigator, FName ActionName);
 
 	// Sets default values for this component's properties
 	UActionComponent();
 
 
-
 protected:
 	/* Granted abilities at game start */
-	UPROPERTY(EditAnywhere, Category = "Actions")
-	TArray<TSubclassOf<UAction>> DefaultActions;
+	UPROPERTY(EditAnywhere, Category = "Actions") TArray<TSubclassOf<UAction>> DefaultActions;
 
-	UPROPERTY(BlueprintReadOnly, Replicated)
-	TArray<TObjectPtr<UAction>> Actions;
+	UPROPERTY(BlueprintReadOnly, Replicated) TArray<TObjectPtr<UAction>> Actions;
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -57,11 +46,8 @@ protected:
 
 public:	
 
-	UPROPERTY(BlueprintAssignable)
-	FOnActionStateChanged OnActionStarted;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnActionStateChanged OnActionStopped;
+	UPROPERTY(BlueprintAssignable) FOnActionStateChanged OnActionStarted;
+	UPROPERTY(BlueprintAssignable) FOnActionStateChanged OnActionStopped;
 
 
 	// Called every frame

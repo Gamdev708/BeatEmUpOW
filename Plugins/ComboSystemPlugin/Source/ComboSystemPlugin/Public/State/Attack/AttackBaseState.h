@@ -26,6 +26,7 @@ enum class EInputButtons : uint8
 {
 	None,
 	LightAttack,
+	MediumAttack,
 	HeavyAttack,
 	Invalid,
 	// Add more transitions here as needed

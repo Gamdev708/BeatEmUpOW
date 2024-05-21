@@ -138,6 +138,24 @@ void ABaseSideFighterCharacter::CombatOverlapEnd(UPrimitiveComponent* Overlapped
 {
 }
 
+void ABaseSideFighterCharacter::ActivateCollision()
+{
+	LeftHandCombatCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	LeftLegCombatCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	RightHandCombatCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	RightLegCombatCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	//Swing sound is initiaed in this stage and as well as any line renderes
+}
+
+void ABaseSideFighterCharacter::DeactivateCollision()
+{
+	LeftHandCombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftLegCombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightHandCombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightLegCombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
 void ABaseSideFighterCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -166,37 +184,52 @@ void ABaseSideFighterCharacter::Move(const FInputActionValue& Value)
 
 void ABaseSideFighterCharacter::StartJump()
 {
+	//ActionComp->StartActionByName(this, "JumpAction");
 	this->Jump();
 }
 
 void ABaseSideFighterCharacter::StopJump()
 {
+	//ActionComp->StopActionByName(this, "JumpAction");
 	this->StopJumping();
 }
 
 void ABaseSideFighterCharacter::DoCrouch()
 {
+	//ActionComp->StartActionByName(this, "CrouchAction");
 	this->Crouch(false);
 }
 void ABaseSideFighterCharacter::DoUncrouch()
 {
+	//ActionComp->StopActionByName(this, "CrouchAction");
 	this->UnCrouch(false);
 }
 
 void ABaseSideFighterCharacter::AttackLight()
 {
+	//ActionComp->StopActionByName(this, "CrouchAction");
+	AttackStateMachineComponent->SetInputState(1);
+	AttackStateMachineComponent->SetInputButton(1);
 }
 
 void ABaseSideFighterCharacter::AttackMedium()
 {
+	//ActionComp->StopActionByName(this, "CrouchAction");
+	AttackStateMachineComponent->SetInputState(1);
+	AttackStateMachineComponent->SetInputButton(2);
 }
 
 void ABaseSideFighterCharacter::AttackHeavy()
 {
+	//ActionComp->StopActionByName(this, "CrouchAction");
+
+	AttackStateMachineComponent->SetInputState(1);
+	AttackStateMachineComponent->SetInputButton(3);
 }
 
 void ABaseSideFighterCharacter::AttackHeavyHold()
 {
+	//ActionComp->StopActionByName(this, "CrouchAction");
 }
 
 void ABaseSideFighterCharacter::GenerateHitboxesToSockets()

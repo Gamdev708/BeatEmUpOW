@@ -78,10 +78,11 @@ void UAttackIdleState::Update(float DeltaTime)
 			}
 			break;
 		}
+
+		NextAction->Initialize(AttackStateMachine);
+		AttackStateMachine->SwitchState(NextAction);
 	}
 
-	NextAction->Initialize(AttackStateMachine);
-	AttackStateMachine->SwitchState(NextAction);
 }
 
 void UAttackIdleState::Exit()
