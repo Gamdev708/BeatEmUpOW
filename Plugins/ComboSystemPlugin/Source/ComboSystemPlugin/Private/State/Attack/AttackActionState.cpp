@@ -33,6 +33,7 @@ void UAttackActionState::Update(float DeltaTime)
 
 	if (EnteredInput == EInputButtons::None || EnteredState == EButtonState::None) { return; }
 
+	if (!AttackStateMachine->ShouldTransitionToNextMove()) { return; }
 
 	if (!HandleInput(EnteredInput, EnteredState))
 	{
