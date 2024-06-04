@@ -51,6 +51,34 @@ void UAttackIdleState::Update(float DeltaTime)
 				break;
 			}
 			break;
+
+		case EInputButtons::MediumAttack:
+			switch (EnteredState)
+			{
+			case EButtonState::Pressed:
+				if (!ensureAlwaysMsgf(MediumAttackPress, TEXT("The Next Move MediumAttackPress is Not SET!! Please make sure you have attached the related move to the given input params. AUTO switching to Idle Now!")))
+				{
+					return;
+				}
+				NextAction = NewObject<UAttackActionState>(AttackStateMachine, MediumAttackPress);
+				break;
+			case EButtonState::Hold:
+				if (!ensureAlwaysMsgf(MediumAttackHold, TEXT("The Next Move MediumAttackHold is Not SET!! Please make sure you have attached the related move to the given input params. AUTO switching to Idle Now!")))
+				{
+					return;
+				}
+				NextAction = NewObject<UAttackActionState>(AttackStateMachine, MediumAttackHold);
+				break;
+			case EButtonState::Tap:
+				if (!ensureAlwaysMsgf(MediumAttackTap, TEXT("The Next Move MediumAttackTap is Not SET!! Please make sure you have attached the related move to the given input params. AUTO switching to Idle Now!")))
+				{
+					return;
+				}
+				NextAction = NewObject<UAttackActionState>(AttackStateMachine, MediumAttackTap);
+				break;
+			}
+			break;
+
 		case EInputButtons::HeavyAttack:
 			switch (EnteredState)
 			{

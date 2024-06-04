@@ -25,6 +25,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Light") TSubclassOf<UAttackActionState> LightAttackHold;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Light") TSubclassOf<UAttackActionState> LightAttackTap;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Medium") TSubclassOf<UAttackActionState> MediumAttackPress;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Medium") TSubclassOf<UAttackActionState> MediumAttackHold;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Medium") TSubclassOf<UAttackActionState> MediumAttackTap;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Heavy") TSubclassOf<UAttackActionState> HeavyAttackPress;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Heavy") TSubclassOf<UAttackActionState> HeavyAttackHold;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Heavy") TSubclassOf<UAttackActionState> HeavyAttackTap;

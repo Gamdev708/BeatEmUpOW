@@ -38,6 +38,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Light", meta = (EditCondition = "!bIsFinal", EditConditionHides)) TSubclassOf<UAttackActionState> LightAttackHold;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Light", meta = (EditCondition = "!bIsFinal", EditConditionHides)) TSubclassOf<UAttackActionState> LightAttackTap;
 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Medium", meta = (EditCondition = "!bIsFinal", EditConditionHides)) TSubclassOf<UAttackActionState> MediumAttackPress;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Medium", meta = (EditCondition = "!bIsFinal", EditConditionHides)) TSubclassOf<UAttackActionState> MediumAttackHold;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Medium", meta = (EditCondition = "!bIsFinal", EditConditionHides)) TSubclassOf<UAttackActionState> MediumAttackTap;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Heavy", meta = (EditCondition = "!bIsFinal", EditConditionHides)) TSubclassOf<UAttackActionState> HeavyAttackPress;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Heavy", meta = (EditCondition = "!bIsFinal", EditConditionHides)) TSubclassOf<UAttackActionState> HeavyAttackHold;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combo Path|Heavy", meta = (EditCondition = "!bIsFinal", EditConditionHides)) TSubclassOf<UAttackActionState> HeavyAttackTap;
