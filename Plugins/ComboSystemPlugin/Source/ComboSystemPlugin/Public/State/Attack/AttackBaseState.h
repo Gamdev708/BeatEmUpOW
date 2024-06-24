@@ -53,6 +53,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, DisplayName = "Update", Category = "Base State Functions") void OnUpdate(float DeltaTime);
 	UFUNCTION(BlueprintImplementableEvent, DisplayName = "Exit", Category = "Base State Functions") void OnExit();
 
+	float GetDamage() { return Damage; }
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Combo Settings") UAttackStateMachine* AttackStateMachine;
 

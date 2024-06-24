@@ -24,6 +24,11 @@ UHealthComponent* UHealthComponent::GetHealthComp(AActor* FromActor)
 
 bool UHealthComponent::IsActorAlive(AActor* Actor)
 {
+	UHealthComponent* HealthComp = GetHealthComp(Actor);
+	if (HealthComp)
+	{
+		return HealthComp->IsAlive();
+	}
 	return false;
 }
 
@@ -77,15 +82,16 @@ bool UHealthComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 		OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta); // Change here were you want to change for multiplayer
 	}
 
+	
 	// Died
-	/*if (ActualDelta < 0.0f && Health == 0.0f)
+	if (ActualDelta < 0.0f && Health == 0.0f)
 	{
-		ASGameModeBase* GM = GetWorld()->GetAuthGameMode<ASGameModeBase>();
+		/*ASGameModeBase* GM = GetWorld()->GetAuthGameMode<ASGameModeBase>();
 		if (GM)
 		{
 			GM->OnActorKilled(GetOwner(), InstigatorActor);
-		}
-	}*/
+		}*/
+	}
 
 	return ActualDelta != 0;
 }

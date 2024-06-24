@@ -47,4 +47,3 @@ void UStateMachine::SwitchState(UState* State)
 	CurrentState = State;
 	if (CurrentState) { CurrentState->Enter(); }
 }
-

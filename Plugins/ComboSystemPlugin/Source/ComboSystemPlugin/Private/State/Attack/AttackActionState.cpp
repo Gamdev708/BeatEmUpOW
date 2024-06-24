@@ -155,6 +155,7 @@ void UAttackActionState::SwitchToNextActionState(UAttackActionState* NextAction)
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 
 	NextAction->Initialize(AttackStateMachine);
+	//AttackStateMachine->SetCurrentStateDamage(NextAction->GetDamage());
 	AttackStateMachine->SwitchState(NextAction);
 }
 

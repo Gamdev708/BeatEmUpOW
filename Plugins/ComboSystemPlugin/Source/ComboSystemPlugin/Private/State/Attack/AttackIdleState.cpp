@@ -108,6 +108,7 @@ void UAttackIdleState::Update(float DeltaTime)
 		}
 
 		NextAction->Initialize(AttackStateMachine);
+		//AttackStateMachine->SetCurrentStateDamage(NextAction->GetDamage());
 		AttackStateMachine->SwitchState(NextAction);
 	}
 

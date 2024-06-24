@@ -10,6 +10,7 @@ UAttackStateMachine::UAttackStateMachine()
 {
 	InputButton = 0;
 	InputState = 0;
+	CurrentDamage = 0;
 }
 
 void UAttackStateMachine::BeginPlay()
@@ -25,6 +26,7 @@ void UAttackStateMachine::ResetFlags()
 {
 	bHasAnimationStopped = false;
 	bShouldTransitionToNextMove = false;
+	CurrentDamage = 0;
 }
 
 bool UAttackStateMachine::IsInAttackState()

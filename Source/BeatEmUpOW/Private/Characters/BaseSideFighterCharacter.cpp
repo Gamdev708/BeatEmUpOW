@@ -9,7 +9,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/ActionComponent.h"
+#include "Components/HealthComponent.h"
 #include "../../../Plugins/ComboSystemPlugin/Source/ComboSystemPlugin/Public/AttackStateMachine.h"
+#include "../DebugHeader.h"
 
 // Sets default values
 ABaseSideFighterCharacter::ABaseSideFighterCharacter()
@@ -19,7 +21,7 @@ ABaseSideFighterCharacter::ABaseSideFighterCharacter()
 
 	GenerateHitboxesToSockets();
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
@@ -31,27 +33,28 @@ ABaseSideFighterCharacter::ABaseSideFighterCharacter()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
 	bIsDefending = false;
+	bIsMovementHalted = false;
+	CharacterModelTransform = FTransform();
+	CharacterModelScale = FVector(0.0f, 0.0f, 0.0f);
 
 
 	AttackStateMachineComponent = CreateDefaultSubobject<UAttackStateMachine>("Attack StateMachine Component");
 	ActionComp = CreateDefaultSubobject<UActionComponent>("Action Component");
+	HealthComp = CreateDefaultSubobject<UHealthComponent>("Health Component");
 		 
 }
 
-// Called when the game starts or when spawned
-void ABaseSideFighterCharacter::BeginPlay()
+void ABaseSideFighterCharacter::PostInitializeComponents()
 {
-	Super::BeginPlay();
+	Super::PostInitializeComponents();
 
-	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
-	
+	//DefendCollision->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::CharacterCapsuleOverlapBegin);
+
+	//DefendCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//DefendCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	//DefendCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	//DefendCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
 	LeftHandCombatCollision->OnComponentBeginOverlap.AddDynamic(this, &ABaseSideFighterCharacter::CombatOverlapBegin);
 	LeftHandCombatCollision->OnComponentEndOverlap.AddDynamic(this, &ABaseSideFighterCharacter::CombatOverlapEnd);
 
@@ -90,11 +93,106 @@ void ABaseSideFighterCharacter::BeginPlay()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
+// Called when the game starts or when spawned
+void ABaseSideFighterCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//Add Input Mapping Context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+}
+
 // Called every frame
 void ABaseSideFighterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (OtherFighter)
+	{
+
+		//// Determine the target rotation to face the enemy
+		//FVector ToEnemy = OtherFighter->GetActorLocation() - GetActorLocation();
+		//FRotator TargetRotation = ToEnemy.Rotation();
+		//FRotator CurrentRotation = GetActorRotation();
+
+		//// Smoothly interpolate the rotation
+		//FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, 5.0f); // 5.0f is the rotation speed factor
+		//NewRotation.Pitch = 0;
+		//NewRotation.Roll = 0;
+		//SetActorRotation(NewRotation);
+
+
+
+		//Debug::Print("Rotation:" + GetActorRotation().ToCompactString(), FColor::Blue, 1);
+		if (auto characterMovement = GetCharacterMovement())
+		{
+			if (auto enemyMovement = OtherFighter->GetCharacterMovement())
+			{
+				/*if (isFlipped)
+				{
+					if (auto capsule = GetCapsuleComponent()->GetChildComponent(1))
+					{
+						CharacterModelTransform = capsule->GetRelativeTransform();
+						CharacterModelScale = CharacterModelTransform.GetScale3D();
+						CharacterModelScale.Y = -1;
+						CharacterModelTransform.SetScale3D(CharacterModelScale);
+						capsule->SetRelativeTransform(CharacterModelTransform);
+					}
+					isFlipped = false;
+				}
+				else if(isFlipped)
+				{
+					if (auto capsule = GetCapsuleComponent()->GetChildComponent(1))
+					{
+						CharacterModelTransform = capsule->GetRelativeTransform();
+						CharacterModelScale = CharacterModelTransform.GetScale3D();
+						CharacterModelScale.Y = -1;
+						CharacterModelTransform.SetScale3D(CharacterModelScale);
+						capsule->SetRelativeTransform(CharacterModelTransform);
+					}
+					isFlipped = true;
+				}*/
+				if (auto Capsule = GetCapsuleComponent()->GetChildComponent(1))
+				{
+					CharacterModelTransform = Capsule->GetRelativeTransform();
+					CharacterModelScale = CharacterModelTransform.GetScale3D();
+					CharacterModelScale.Y = -1;
+					CharacterModelTransform.SetScale3D(CharacterModelScale);
+					Capsule->SetRelativeTransform(CharacterModelTransform);
+
+					isFlipped = !isFlipped; // Toggle the isFlipped state
+				}
+
+				//TODO :- Uncomment the Below code to try to use this effect
+
+				
+
+				// do for current player
+
+
+				//if (auto Capsule = GetCapsuleComponent()->GetChildComponent(1))
+				//{
+				//	CharacterModelTransform = Capsule->GetRelativeTransform();
+				//	CharacterModelScale = CharacterModelTransform.GetScale3D();
+				//	CharacterModelScale.Y = -1;
+				//	CharacterModelTransform.SetScale3D(CharacterModelScale);
+				//	Capsule->SetRelativeTransform(CharacterModelTransform);
+
+				//	isFlipped = !isFlipped; // Toggle the isFlipped state
+				//}
+			}
+		}
+
+	}
+
+	FVector CurrentLocation = GetActorLocation();
+	CurrentLocation.Y = 0;
 }
 
 // Called to bind functionality to input
@@ -120,23 +218,30 @@ void ABaseSideFighterCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 		EnhancedInputComponent->BindAction(MediumAttackAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackMedium);
 		EnhancedInputComponent->BindAction(HeavyAttackAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackHeavy);
 		EnhancedInputComponent->BindAction(HeavyHoldAttackAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackHeavyHold);
-
 	}
-
 }
 
 void ABaseSideFighterCharacter::CombatOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == this) { return; }
+
+	//Use a Interface instead
 	if (TObjectPtr<ABaseSideFighterCharacter> Fighter = Cast<ABaseSideFighterCharacter>(OtherActor))
 	{
+		if (Fighter->GetIsDefending()) { return; }
 
+		UHealthComponent* FigherHealth = Fighter->HealthComp;
+		if (FigherHealth->ApplyHealthChange(this, GetAttackStateMachineComponent()->GetCurrentStateDamage()))
+		{
+			
+		}
 	}
 }
 
 void ABaseSideFighterCharacter::CombatOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 }
+
 
 void ABaseSideFighterCharacter::ActivateCollision()
 {
@@ -156,8 +261,18 @@ void ABaseSideFighterCharacter::DeactivateCollision()
 	RightLegCombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+void ABaseSideFighterCharacter::CharacterCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!bIsDefending) { return; }
+	
+	// You Probably want to add When character is Downed prevent this
+	PlayAnimMontage(DefendMontage, DefendMontageSpeed);
+}
+
 void ABaseSideFighterCharacter::Move(const FInputActionValue& Value)
 {
+	if (bIsMovementHalted) { return; }
+
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 	if (Controller != nullptr)
@@ -165,44 +280,44 @@ void ABaseSideFighterCharacter::Move(const FInputActionValue& Value)
 		if (GetCharacterMovement()->IsCrouching()) { return; }
 
 		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0,0, Rotation.Yaw);
+	/*	const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0,0, Rotation.Yaw);*/
 
 		// get forward vector
 		//const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
 		// get right vector 
-		const FVector RightDirection = -FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		//const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
 		// add movement 
 		/*AddMovementInput(ForwardDirection, MovementVector.Y);*/
 		//GetCharacterMovement()->MaxWalkSpeed = 100.f;
 
-		AddMovementInput(RightDirection, MovementVector.X);
+		AddMovementInput(FVector(1.f, 0.f, 0.f), -MovementVector.X);
 	}
 }
 
 void ABaseSideFighterCharacter::StartJump()
 {
-	//ActionComp->StartActionByName(this, "JumpAction");
-	this->Jump();
+	ActionComp->StartActionByName(this, "JumpAction");
+	//this->Jump();
 }
 
 void ABaseSideFighterCharacter::StopJump()
 {
-	//ActionComp->StopActionByName(this, "JumpAction");
-	this->StopJumping();
+	ActionComp->StopActionByName(this, "JumpAction");
+	//this->StopJumping();
 }
 
 void ABaseSideFighterCharacter::DoCrouch()
 {
-	//ActionComp->StartActionByName(this, "CrouchAction");
-	this->Crouch(false);
+	ActionComp->StartActionByName(this, "CrouchAction");
+	//this->Crouch(false);
 }
 void ABaseSideFighterCharacter::DoUncrouch()
 {
-	//ActionComp->StopActionByName(this, "CrouchAction");
-	this->UnCrouch(false);
+	ActionComp->StopActionByName(this, "CrouchAction");
+	//this->UnCrouch(false);
 }
 
 void ABaseSideFighterCharacter::AttackLight()

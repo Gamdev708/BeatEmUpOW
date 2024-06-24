@@ -7,6 +7,7 @@
 #include "AttackStateMachine.generated.h"
 
 class UAttackIdleState;
+class UAttackActionState;
 
 /**
  * 
@@ -26,11 +27,14 @@ private:
 
 	uint32 bHasAnimationStopped : 1;
 	uint32 bShouldTransitionToNextMove : 1;
+
+	UPROPERTY() float CurrentDamage;
+
 public:
 	UAttackStateMachine();
 
-	FORCEINLINE void SetInputButton(int32 Value) { InputButton = Value; }
-	FORCEINLINE void SetInputState(int32 Value) { InputState = Value; }
+	UFUNCTION(BlueprintCallable, Category = "Combo StateMachine Functions") FORCEINLINE void SetInputButton(int32 Value) { InputButton = Value; }
+	UFUNCTION(BlueprintCallable, Category = "Combo StateMachine Functions") FORCEINLINE void SetInputState(int32 Value) { InputState = Value; }
 
 	FORCEINLINE int32 GetInputButton() const { return InputButton; }
 	FORCEINLINE int32 GetInputState() const { return InputState; }
@@ -42,6 +46,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combo StateMachine Functions") void SetHasAnimationStopped(bool Value) { bHasAnimationStopped = Value; }
 
 	FORCEINLINE TSubclassOf<UAttackIdleState> GetDefaultState() const { return DefaultState; }
+	FORCEINLINE float GetCurrentStateDamage() const { return CurrentDamage; }
+	UFUNCTION(BlueprintCallable, Category = "Combo StateMachine Functions")  void SetCurrentStateDamage(float NewDamage) { CurrentDamage = NewDamage; }
 
 	void ResetFlags();
 
