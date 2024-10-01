@@ -97,15 +97,6 @@ void ABaseSideFighterCharacter::PostInitializeComponents()
 void ABaseSideFighterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
 }
 
 // Called every frame
@@ -115,111 +106,35 @@ void ABaseSideFighterCharacter::Tick(float DeltaTime)
 
 	if (OtherFighter)
 	{
+		// Get the direction to the opponent
+		FVector DirectionToOpponent = OtherFighter->GetActorLocation() - GetActorLocation();
+		DirectionToOpponent.Z = 0; // Ignore height difference
 
-		//// Determine the target rotation to face the enemy
-		//FVector ToEnemy = OtherFighter->GetActorLocation() - GetActorLocation();
-		//FRotator TargetRotation = ToEnemy.Rotation();
-		//FRotator CurrentRotation = GetActorRotation();
+		// Get the forward vector of our character
+		FVector ForwardVector = GetActorForwardVector();
+		ForwardVector.Z = 0; // Ignore height difference
 
-		//// Smoothly interpolate the rotation
-		//FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, 5.0f); // 5.0f is the rotation speed factor
-		//NewRotation.Pitch = 0;
-		//NewRotation.Roll = 0;
-		//SetActorRotation(NewRotation);
+		// Calculate the angle between the two vectors
+		float AngleDifference = FMath::Acos(FVector::DotProduct(ForwardVector, DirectionToOpponent.GetSafeNormal()));
+		AngleDifference = FMath::RadiansToDegrees(AngleDifference);
 
-
-
-		//Debug::Print("Rotation:" + GetActorRotation().ToCompactString(), FColor::Blue, 1);
-		if (auto characterMovement = GetCharacterMovement())
+		// If the angle is greater than 90 degrees, we need to turn
+		if (AngleDifference > 90.0f)
 		{
-			if (auto enemyMovement = OtherFighter->GetCharacterMovement())
-			{
-				/*if (isFlipped)
-				{
-					if (auto capsule = GetCapsuleComponent()->GetChildComponent(1))
-					{
-						CharacterModelTransform = capsule->GetRelativeTransform();
-						CharacterModelScale = CharacterModelTransform.GetScale3D();
-						CharacterModelScale.Y = -1;
-						CharacterModelTransform.SetScale3D(CharacterModelScale);
-						capsule->SetRelativeTransform(CharacterModelTransform);
-					}
-					isFlipped = false;
-				}
-				else if(isFlipped)
-				{
-					if (auto capsule = GetCapsuleComponent()->GetChildComponent(1))
-					{
-						CharacterModelTransform = capsule->GetRelativeTransform();
-						CharacterModelScale = CharacterModelTransform.GetScale3D();
-						CharacterModelScale.Y = -1;
-						CharacterModelTransform.SetScale3D(CharacterModelScale);
-						capsule->SetRelativeTransform(CharacterModelTransform);
-					}
-					isFlipped = true;
-				}*/
-				if (auto Capsule = GetCapsuleComponent()->GetChildComponent(1))
-				{
-					CharacterModelTransform = Capsule->GetRelativeTransform();
-					CharacterModelScale = CharacterModelTransform.GetScale3D();
-					CharacterModelScale.Y = -1;
-					CharacterModelTransform.SetScale3D(CharacterModelScale);
-					Capsule->SetRelativeTransform(CharacterModelTransform);
+			// Calculate the new rotation
+			FRotator NewRotation = DirectionToOpponent.Rotation();
+			NewRotation.Pitch = 0;
+			NewRotation.Roll = 0;
 
-					isFlipped = !isFlipped; // Toggle the isFlipped state
-				}
-
-				//TODO :- Uncomment the Below code to try to use this effect
-
-				
-
-				// do for current player
-
-
-				//if (auto Capsule = GetCapsuleComponent()->GetChildComponent(1))
-				//{
-				//	CharacterModelTransform = Capsule->GetRelativeTransform();
-				//	CharacterModelScale = CharacterModelTransform.GetScale3D();
-				//	CharacterModelScale.Y = -1;
-				//	CharacterModelTransform.SetScale3D(CharacterModelScale);
-				//	Capsule->SetRelativeTransform(CharacterModelTransform);
-
-				//	isFlipped = !isFlipped; // Toggle the isFlipped state
-				//}
-			}
+			// Set the new rotation
+			SetActorRotation(NewRotation);
+			//FRotator CurrentRotation = GetActorRotation();
+			//FRotator InterpolatedRotation = FMath::RInterpTo(CurrentRotation, NewRotation, DeltaTime, 1.0f);
+			//SetActorRotation(InterpolatedRotation);
 		}
-
-	}
-
-	FVector CurrentLocation = GetActorLocation();
-	CurrentLocation.Y = 0;
-}
-
-// Called to bind functionality to input
-void ABaseSideFighterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	// Set up action bindings
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-
-		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::StartJump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ABaseSideFighterCharacter::StopJump);
-
-		EnhancedInputComponent->BindAction(DuckAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::DoCrouch);
-		EnhancedInputComponent->BindAction(DuckAction, ETriggerEvent::Completed, this, &ABaseSideFighterCharacter::DoUncrouch);
-
-		//Moving
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::Move);
-
-		//Attacking
-		EnhancedInputComponent->BindAction(LightAttackPunchAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackLight);
-		EnhancedInputComponent->BindAction(MediumAttackAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackMedium);
-		EnhancedInputComponent->BindAction(HeavyAttackAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackHeavy);
-		EnhancedInputComponent->BindAction(HeavyHoldAttackAction, ETriggerEvent::Triggered, this, &ABaseSideFighterCharacter::AttackHeavyHold);
 	}
 }
+
 
 void ABaseSideFighterCharacter::CombatOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -267,84 +182,6 @@ void ABaseSideFighterCharacter::CharacterCapsuleOverlapBegin(UPrimitiveComponent
 	
 	// You Probably want to add When character is Downed prevent this
 	PlayAnimMontage(DefendMontage, DefendMontageSpeed);
-}
-
-void ABaseSideFighterCharacter::Move(const FInputActionValue& Value)
-{
-	if (bIsMovementHalted) { return; }
-
-	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
-	if (Controller != nullptr)
-	{
-		if (GetCharacterMovement()->IsCrouching()) { return; }
-
-		// find out which way is forward
-	/*	const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0,0, Rotation.Yaw);*/
-
-		// get forward vector
-		//const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
-		// get right vector 
-		//const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
-		// add movement 
-		/*AddMovementInput(ForwardDirection, MovementVector.Y);*/
-		//GetCharacterMovement()->MaxWalkSpeed = 100.f;
-
-		AddMovementInput(FVector(1.f, 0.f, 0.f), -MovementVector.X);
-	}
-}
-
-void ABaseSideFighterCharacter::StartJump()
-{
-	ActionComp->StartActionByName(this, "JumpAction");
-	//this->Jump();
-}
-
-void ABaseSideFighterCharacter::StopJump()
-{
-	ActionComp->StopActionByName(this, "JumpAction");
-	//this->StopJumping();
-}
-
-void ABaseSideFighterCharacter::DoCrouch()
-{
-	ActionComp->StartActionByName(this, "CrouchAction");
-	//this->Crouch(false);
-}
-void ABaseSideFighterCharacter::DoUncrouch()
-{
-	ActionComp->StopActionByName(this, "CrouchAction");
-	//this->UnCrouch(false);
-}
-
-void ABaseSideFighterCharacter::AttackLight()
-{
-	//ActionComp->StopActionByName(this, "CrouchAction");
-	AttackStateMachineComponent->SetInputState(1);
-	AttackStateMachineComponent->SetInputButton(1);
-}
-
-void ABaseSideFighterCharacter::AttackMedium()
-{
-	//ActionComp->StopActionByName(this, "CrouchAction");
-	AttackStateMachineComponent->SetInputState(1);
-	AttackStateMachineComponent->SetInputButton(2);
-}
-
-void ABaseSideFighterCharacter::AttackHeavy()
-{
-	//ActionComp->StopActionByName(this, "CrouchAction");
-
-	AttackStateMachineComponent->SetInputState(1);
-	AttackStateMachineComponent->SetInputButton(3);
-}
-
-void ABaseSideFighterCharacter::AttackHeavyHold()
-{
-	//ActionComp->StopActionByName(this, "CrouchAction");
 }
 
 void ABaseSideFighterCharacter::GenerateHitboxesToSockets()

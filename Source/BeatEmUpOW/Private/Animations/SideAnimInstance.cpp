@@ -4,7 +4,7 @@
 #include "Animations/SideAnimInstance.h"
 #include "Characters/BaseSideFighterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "../DebugHeader.h"
 void USideAnimInstance::NativeInitializeAnimation()
 {
 	if (Pawn == nullptr)
@@ -23,12 +23,15 @@ void USideAnimInstance::UpdateAnimationProperties()
 	if (Pawn)
 	{
 		FVector Speed = Pawn->GetVelocity();
-		FVector LateralSpeed = FVector(Speed.X, Speed.Y, 0.f);
-		MovementSpeed = Speed.X;
+		//Debug::Print(Speed.ToCompactString());
+		FVector LateralSpeed = FVector(0, Speed.Y, Speed.Z);
+		MovementSpeed = Speed.Y;
 		if (Speed.X==0)
 		{
 			bShouldMove = false;
 		}
+
+
 
 		bIsInAir = Pawn->GetMovementComponent()->IsFalling();
 		bIsCrouch = Pawn->GetMovementComponent()->IsCrouching();

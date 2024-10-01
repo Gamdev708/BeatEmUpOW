@@ -52,3 +52,8 @@ bool UAttackStateMachine::HasCompletedCombo()
 	}
 	return  State->IsFinal();
 }
+
+bool UAttackStateMachine::IsKeyOnHold()
+{
+	return 	InputButton != 0 &&	InputState != 0;
+}

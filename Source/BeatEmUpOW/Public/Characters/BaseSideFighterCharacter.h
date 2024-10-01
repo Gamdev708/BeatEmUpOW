@@ -23,32 +23,8 @@ class BEATEMUPOW_API ABaseSideFighterCharacter : public ACharacter
 	GENERATED_BODY()
 
 protected:
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputMappingContext* DefaultMappingContext;
 
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* JumpAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* DuckAction;
-
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* LightAttackPunchAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MediumAttackAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* HeavyAttackAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* HeavyHoldAttackAction;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true")) TObjectPtr<UAttackStateMachine> AttackStateMachineComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true")) TObjectPtr<UAttackStateMachine > AttackStateMachineComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components") TObjectPtr<UActionComponent> ActionComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components") TObjectPtr<UHealthComponent> HealthComp;
@@ -87,8 +63,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION() void CombatOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION() void CombatOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
@@ -98,27 +72,28 @@ public:
 	UFUNCTION() void CharacterCapsuleOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 private:
-	/** Called for movement input */
-	void Move(const FInputActionValue& Value);
-	void StartJump();
-	void StopJump();
-	void DoCrouch();
-	void DoUncrouch();
-	void AttackLight();
-	void AttackMedium();
-	void AttackHeavy();
-	void AttackHeavyHold();
 	bool bIsDefending;
 	bool bIsMovementHalted;
 
 
 	void GenerateHitboxesToSockets();
 
+	FVector LastMovementInputStored;
+
 public:
 	FORCEINLINE TObjectPtr<UAttackStateMachine> GetAttackStateMachineComponent() const { return AttackStateMachineComponent; }
 	FORCEINLINE TObjectPtr<UActionComponent> GetActionComponent() const { return ActionComp; }
 	FORCEINLINE bool GetIsDefending() const { return bIsDefending; }
+
+	FORCEINLINE bool GetIsMovementHalted() const { return bIsMovementHalted; }
+	FORCEINLINE bool GetShouldDefend() const { return bIsDefending; }
+
+
 	UFUNCTION(BlueprintCallable) FORCEINLINE void SetIsDefending(bool bShouldDefend) { bIsDefending = bShouldDefend; }
 	UFUNCTION(BlueprintCallable) FORCEINLINE void SetIsMovementHalted(bool bShouldMovementHalted) { bIsMovementHalted = bShouldMovementHalted; }
 	UFUNCTION(BlueprintCallable) FORCEINLINE void SetOtherFighter(ABaseSideFighterCharacter* Fighter) { this->OtherFighter = Fighter; }
+
+	UFUNCTION(BlueprintCallable) FORCEINLINE FVector GetLastStoredMovementInput() { return LastMovementInputStored; }
+	FORCEINLINE void SetLastStoredMovementInput(FVector MovementVector) { LastMovementInputStored = MovementVector; }
+
 };

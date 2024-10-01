@@ -39,7 +39,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")	TSoftObjectPtr<UTexture2D> Icon;
 
-	UPROPERTY(Replicated) TObjectPtr<UActionComponent> ActionComp;
+	//UPROPERTY(Replicated) TObjectPtr<UActionComponent> ActionComp;
+	UPROPERTY() TObjectPtr<UActionComponent> ActionComp;
 
 	UFUNCTION(BlueprintCallable, Category = "Action") UActionComponent* GetOwningComponent() const;
 
@@ -49,9 +50,11 @@ protected:
 	/* Action can only start if OwningActor has none of these Tags applied */
 	UPROPERTY(EditDefaultsOnly, Category = "Tags") FGameplayTagContainer BlockedTags;
 
-	UPROPERTY(ReplicatedUsing = "OnRep_RepData") FActionRepData RepData;
+	//UPROPERTY(ReplicatedUsing = "OnRep_RepData") FActionRepData RepData;
+	UPROPERTY() FActionRepData RepData;
 
-	UPROPERTY(Replicated) float TimeStarted;
+	//UPROPERTY(Replicated) float TimeStarted;
+	UPROPERTY() float TimeStarted;
 
 	UFUNCTION()	void OnRep_RepData();
 

@@ -55,4 +55,5 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combo StateMachine Functions") bool IsInAttackState();
 	UFUNCTION(BlueprintCallable, Category = "Combo StateMachine Functions") bool IsInIdleState();
 	UFUNCTION(BlueprintCallable, Category = "Combo StateMachine Functions") bool HasCompletedCombo();
+	UFUNCTION(BlueprintCallable, Category = "Combo StateMachine Functions") bool IsKeyOnHold();
 };

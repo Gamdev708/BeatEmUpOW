@@ -46,7 +46,6 @@ void UAttackActionState::Update(float DeltaTime)
 		return;
 	}
 
-	
 
 	UAttackActionState* NextAction = nullptr;
 	switch (EnteredInput)

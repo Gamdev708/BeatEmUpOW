@@ -138,17 +138,20 @@ bool UActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	{
 		if (Action && Action->ActionName == ActionName)
 		{
-			if (Action->IsRunning())
-			{
-				//// Is Client?
-				//if (!GetOwner()->HasAuthority())
-				//{
-				//	ServerStopAction(Instigator, ActionName);
-				//}
+			//if (Action->IsRunning())
+			//{
+			//	//// Is Client?
+			//	//if (!GetOwner()->HasAuthority())
+			//	//{
+			//	//	ServerStopAction(Instigator, ActionName);
+			//	//}
+			//	TRACE_BOOKMARK(TEXT("StartAction::%s"), *GetNameSafe(Action));
 
+			//	Action->StopAction(Instigator);
+			//	return true;
+			//}
 				Action->StopAction(Instigator);
 				return true;
-			}
 		}
 	}
 

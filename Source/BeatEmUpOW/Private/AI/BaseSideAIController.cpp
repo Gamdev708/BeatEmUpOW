@@ -35,12 +35,12 @@ void ABaseSideAIController::Tick(float DeltaTime)
 		else
 		{
 			StopMovement();
-			if (TObjectPtr<ABaseSideFighterCharacter> Char = Cast<ABaseSideFighterCharacter>(GetCharacter())) 
+			/*if (TObjectPtr<ABaseSideFighterCharacter> Char = Cast<ABaseSideFighterCharacter>(GetCharacter())) 
 			{
 
 				Char->GetAttackStateMachineComponent()->SetInputState(1);
 				Char->GetAttackStateMachineComponent()->SetInputButton(1);
-			}
+			}*/
 		}
 	}
 }
